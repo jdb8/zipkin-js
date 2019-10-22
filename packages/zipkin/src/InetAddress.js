@@ -31,7 +31,7 @@ class InetAddress {
 }
 
 // In non-node environments we fallback to 127.0.0.1
-InetAddress.getLocalAddress = function getLocalAddress() {
+function getLocalAddress() {
   const isNode = typeof process === 'object' && typeof process.on === 'function';
   if (!isNode) {
     return new InetAddress('127.0.0.1');
@@ -41,5 +41,10 @@ InetAddress.getLocalAddress = function getLocalAddress() {
   const networkAddress = require('./network');
   return new InetAddress(networkAddress.ipv4());
 };
+
+// Cache this value at import time so as to avoid network interface
+// lookup on every call
+const cachedLocalAddress = getLocalAddress();
+InetAddress.getLocalAddress = () => cachedLocalAddress;
 
 module.exports = InetAddress;
